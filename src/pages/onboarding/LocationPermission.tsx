@@ -120,9 +120,10 @@
 import { ChevronLeft, MapPin, RefreshCw, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import {setUser} from  "../../store/slices/userSlice";
 import onboardService from "../../api/services/onboardService";
 import { ONBOARDING_ROUTES } from "../../utils/onboardingRoutes";
-
 
 
 
@@ -132,11 +133,13 @@ export function LocationPermission() {
     const [isLoading, setIsLoading] = useState(false);
     const [showInstructions, setShowInstructions] = useState(false);
 
-
+    const dispatch = useDispatch();
     const savePermission = async (status: string) => {
         try {
-            await onboardService.locationPermission({ permission: status });
+            const response = await onboardService.locationPermission({ permission: status });
             alert(`${status === 'GRANTED' ? 'Get in joor' : 'Why now'}`)
+            dispatch(setUser(response.user))
+            navigate('/home')
         } catch (error) {
             console.error('Failed to save permission:', error);
         }

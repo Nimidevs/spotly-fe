@@ -1,0 +1,11 @@
+1. You can use the logic below to handle chatRooms/Dm's when you're there
+import { redirect } from "react-router";
+
+export async function action({ request }) {
+  let formData = await request.formData();
+  let project = await createProject(formData);
+  return redirect(`/projects/${project.id}`);
+}
+
+
+

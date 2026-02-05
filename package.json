@@ -21,6 +21,7 @@
     "react-router": "^7.10.1",
     "redux-persist": "^6.0.0",
     "tailwindcss": "^4.1.17",
+    "ws": "^8.19.0",
     "zod": "^4.2.1"
   },
   "devDependencies": {

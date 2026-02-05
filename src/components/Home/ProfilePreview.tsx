@@ -1,5 +1,5 @@
 import { X, MessageCircle, MapPin, Compass } from "lucide-react";
-import placeholder from "../../../public/placeholder.svg";
+import placeholder from "../../assets/placeholder.svg";
 
 interface ProfilePreviewProps {
   user: {

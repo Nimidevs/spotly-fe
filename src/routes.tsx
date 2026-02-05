@@ -5,6 +5,7 @@ import JoinReason from "./pages/onboarding/JoinReason";
 import ProfileInfo from "./pages/onboarding/ProfileInfo";
 import { ProfileImage } from "./pages/onboarding/ProfileImage";
 import { LocationPermission } from "./pages/onboarding/LocationPermission";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const routes = createBrowserRouter([
   {
@@ -12,8 +13,13 @@ const routes = createBrowserRouter([
     element: <Landing />,
   },
   {
+    /**Consider converting this to react-router v6 auth guards/ loaders instead of a ProtectedRoute component*/
     path: "/home",
-    element: <Home />,
+    element: (
+      <ProtectedRoute>
+        <Home />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/onboarding/join-reason",

@@ -16,3 +16,16 @@ export interface OnboardModalProps {
 export interface OnboardFormProps {
   onSwitch: (type: ModalType) => void;
 }
+
+export interface User {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  bio: string;
+  avatarUrl: string;
+  joinReason: string;
+  onboardingStatus: string;
+  onboardingStep: number;
+  location_permission: string;
+}

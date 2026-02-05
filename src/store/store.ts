@@ -4,17 +4,19 @@ import { persistReducer, persistStore, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, 
 import tokenReducer from "./slices/tokenSlice";
 import userReducer from "./slices/userSlice";
 import storage from "redux-persist/lib/storage";
+import availabilityReducer from "./slices/availabilitySlice";
 
 
 const rootReducer = combineReducers({
     token: tokenReducer,
-    user: userReducer
+    user: userReducer,
+    availability: availabilityReducer,
 })
 
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['user'],
+  whitelist: ['user', 'availability'],
   blacklist: ['token']
 }
 
@@ -29,6 +31,8 @@ const store = configureStore({
           },
         }),
 })
+
+export type RootState = ReturnType<typeof store.getState>;
 
 export const persistor = persistStore(store);
 

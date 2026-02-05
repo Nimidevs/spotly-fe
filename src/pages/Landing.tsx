@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router";
 import Navbar from "../components/Landing/Navbar";
 import Hero from "../components/Landing/Hero";
 import HowItWorks from "../components/Landing/HowItWorks";
@@ -11,7 +12,11 @@ import OnboardModal from "../components/auth/AuthModal";
 import type { ModalType } from "../interfaces";
 
 export default function Landing() {
-  const [modalType, setModalType] = useState<ModalType | null>(null);
+  const [searchParams] = useSearchParams();
+  const loginParam = searchParams.get("login");
+  const [modalType, setModalType] = useState<ModalType | null>(
+    loginParam === "true" ? "login" : null
+  );
 
   const openModal = (type: ModalType) => {
     setModalType(type);

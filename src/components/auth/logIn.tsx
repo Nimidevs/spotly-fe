@@ -1,27 +1,35 @@
 import type { OnboardFormProps } from "../../interfaces";
 import { useAuthValidator } from "../../hooks/authValidatorHook";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { EyeIcon, EyeOffIcon, Loader2 } from "lucide-react";
 import { useState } from "react";
 import authService from "../../api/services/authService";
 import { setToken } from "../../store/slices/tokenSlice";
 import { setUser } from "../../store/slices/userSlice";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router";
 
 const LogIn = ({ onSwitch }: OnboardFormProps) => {
 
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const { formData, error, handleChange, validateForm } = useAuthValidator();
+  const [isLoading, setIsLoading] = useState(false);
 
+  const navigate = useNavigate()
   const handleLogIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsLoading(true);
     if (!validateForm()) return;
     try {
       const response = await authService.signIn(formData);
+      console.log(response.user)
       dispatch(setToken(response.token))
       dispatch(setUser(response.user))
+      navigate('/home')
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -69,6 +77,7 @@ const LogIn = ({ onSwitch }: OnboardFormProps) => {
         <form onSubmit={handleLogIn} className="space-y-4">
         <label className="flex flex-col gap-1">
           <input
+            disabled={isLoading}
             value={formData.email}
             name="email"
             onChange={handleChange}
@@ -85,6 +94,7 @@ const LogIn = ({ onSwitch }: OnboardFormProps) => {
               error?.password ? 'border-red-400' : ''
             }`}>
             <input
+            disabled={isLoading}
             value={formData.password}
             name="password"
             onChange={handleChange}
@@ -110,11 +120,11 @@ const LogIn = ({ onSwitch }: OnboardFormProps) => {
           </div>
 
           <button
-            type="submit"
-            className="w-full px-6 py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-800 transition-all duration-200 shadow-sm hover:shadow-md"
-          >
-            Sign In
-          </button>
+  type="submit"
+  className="w-full px-6 py-3 bg-black text-white font-semibold text-center rounded-lg hover:bg-gray-800 transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center"
+>
+  {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Sign In'}
+</button>
         </form>
 
         {/* Sign Up Link */}

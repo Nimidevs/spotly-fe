@@ -1,9 +1,15 @@
 import { Home, MessageSquare, User, Settings, Zap, ZapOff, Bell } from "lucide-react";
-import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import type { RootState } from "../../store/store";
+import { setAvailability } from "../../store/slices/availabilitySlice";
 
 export default function UtilityRail() {
-  const [isAvailable, setIsAvailable] = useState(true);
-  const [hasNotifications, setHasNotifications] = useState(true);
+  const isAvailable = useSelector((state: RootState) => state.availability.isAvailable);
+  const dispatch = useDispatch();
+
+  const handleAvailability = () => {
+    dispatch(setAvailability(!isAvailable));
+  }
 
   return (
     // <div className="w-16 bg-[#111111] border-r border-[#1a1a1a] flex flex-col items-center py-4 gap-6 flex-shrink-0">
@@ -77,7 +83,7 @@ export default function UtilityRail() {
 
       {/* Availability Toggle */}
       <button
-        onClick={() => setIsAvailable(!isAvailable)}
+        onClick={handleAvailability}
         className={`group relative flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-300 ${
             isAvailable ? "bg-green-500/10 text-green-500" : "bg-muted text-muted-foreground"
           }`}
