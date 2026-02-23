@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 
 interface UseWebSocketProps {
   url: string;
-  onMessage?: (data: any) => void;
+  onMessage?: (data: any, ws: WebSocket) => void;
   onConnect?: () => void;
   onDisconnect?: () => void;
   autoReconnect?: boolean;
@@ -34,10 +34,10 @@ export const useWebSocket = ({
         onConnect?.();
       };
 
-      ws.current.onmessage = (event) => {
+      ws.current.onmessage = (data: any) => {
         try {
-          const data = JSON.parse(event.data);
-          onMessage?.(data);
+          // const data = JSON.parse(event.data);
+          onMessage?.(data, ws.current as WebSocket);
         } catch (error) {
           console.error('Failed to parse message:', error);
         }

@@ -1,4 +1,4 @@
-import { useState, useEffect} from "react";
+import { useState, useEffect, useRef } from "react";
 import UtilityRail from "../components/Home/UtilityRail";
 import ChatSidebar from "../components/Home/ChatSidebar";
 import MapArea from "../components/Home/MapArea";
@@ -6,26 +6,31 @@ import { useSelector } from "react-redux";
 import type { RootState } from "../store/store";
 import { ONBOARDING_ROUTES } from "../utils/onboardingRoutes";
 import { useNavigate } from "react-router";
-import { useWebSocket } from "../hooks/useWebSocket";
+import { useWebSocketContext } from "../ws/WebSocketContext";
 
 export default function Home() {
-    const user = useSelector((state: RootState) => state.user.user);
-    console.log('🔍 User:', user);
-    const token = useSelector((state: RootState) => state.token);
-    const isAvailable = useSelector((state: RootState) => state.availability.isAvailable);
-    const navigate = useNavigate();
-  // In a real app, this would come from Redux/API
+  const user = useSelector((state: RootState) => state.user.user);
+  const token = useSelector((state: RootState) => state.token);
+  const isAvailable = useSelector((state: RootState) => state.availability.isAvailable);
+  const navigate = useNavigate();
+  const { isConnected, sendMessage } = useWebSocketContext();
+
   const [hasChats] = useState(true);
   const [isChatOpen, setIsChatOpen] = useState(() => {
-    // Remember last state from localStorage
     const saved = localStorage.getItem("chatSidebarOpen");
     return saved ? JSON.parse(saved) : true;
   });
 
+  const hasSentAuth = useRef(false);
+
   useEffect(() => {
-    if(user?.onboardingStatus !== "COMPLETED") {
-      switch(user?.onboardingStep){
-        case 0: 
+    if (!isConnected) hasSentAuth.current = false;
+  }, [isConnected]);
+
+  useEffect(() => {
+    if (user?.onboardingStatus !== "COMPLETED") {
+      switch (user?.onboardingStep) {
+        case 0:
           navigate(ONBOARDING_ROUTES.JOIN_REASON);
           break;
         case 1:
@@ -38,44 +43,34 @@ export default function Home() {
           navigate(ONBOARDING_ROUTES.LOCATION_PERMISSION);
           break;
         default:
-          navigate('/');
+          navigate("/");
           break;
       }
     }
 
-    if(user?.location_permission !== 'GRANTED'){
+    if (user?.location_permission !== "GRANTED") {
       navigate(ONBOARDING_ROUTES.LOCATION_PERMISSION);
     }
-  }, [user]);
+  }, [user, navigate]);
 
-  const wsUrl = import.meta.env.VITE_WEBSOCKET_API_URL;
-console.log('ENV VAR:', wsUrl);
-console.log('FULL ENV:', import.meta.env);
+  // Send auth once when connected (global WS = one connection, so one auth send)
+  useEffect(() => {
+    if (!isConnected || !token || hasSentAuth.current) return;
 
-  const { isConnected, sendMessage, disconnect, reconnect } = useWebSocket({
-    url: wsUrl,
-    onMessage: (data) => {
-      console.log(data);
-    },
-    onConnect: () => {
-      sendMessage({
-        event: "auth",
-        payload: {
-          token: token,
-          firstName: user?.firstName,
-          lastName: user?.lastName,
-          bio: user?.bio,
-          avatarUrl: user?.avatarUrl,
-          joinReason: user?.joinReason,
-          availability: isAvailable,
-        },
-      });
-    },
-    onDisconnect: () => {
-      console.log("Disconnected from WebSocket");
-    },
-    autoReconnect: true,
-  });
+    hasSentAuth.current = true;
+    sendMessage({
+      event: "auth",
+      payload: {
+        token,
+        firstName: user?.firstName,
+        lastName: user?.lastName,
+        bio: user?.bio,
+        avatarUrl: user?.avatarUrl,
+        joinReason: user?.joinReason,
+        availability: isAvailable,
+      },
+    });
+  }, [isConnected, token, sendMessage, user, isAvailable]);
 
 
 

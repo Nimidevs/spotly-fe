@@ -5,12 +5,13 @@ import tokenReducer from "./slices/tokenSlice";
 import userReducer from "./slices/userSlice";
 import storage from "redux-persist/lib/storage";
 import availabilityReducer from "./slices/availabilitySlice";
-
+import wsDataReducer from "./slices/wsDataSlice";
 
 const rootReducer = combineReducers({
-    token: tokenReducer,
-    user: userReducer,
-    availability: availabilityReducer,
+  token: tokenReducer,
+  user: userReducer,
+  availability: availabilityReducer,
+  wsData: wsDataReducer,
 })
 
 const persistConfig = {

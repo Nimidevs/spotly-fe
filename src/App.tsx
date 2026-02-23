@@ -1,11 +1,14 @@
 import routes from "./routes";
 import { RouterProvider } from "react-router";
-import { Toaster } from 'react-hot-toast';
+import { Toaster } from "react-hot-toast";
+import { WebSocketProvider } from "./ws/WebSocketContext";
 
 function App() {
   return (
     <>
-      <RouterProvider router={routes} />
+      <WebSocketProvider>
+        <RouterProvider router={routes} />
+      </WebSocketProvider>
       <Toaster />
     </>
   );
