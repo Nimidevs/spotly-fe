@@ -13,7 +13,8 @@ export const onMessageHandler = (payload: string, ws: WebSocket) => {
     case "auth:success":
       locationUpdatesHandler(data, ws as WebSocket);
       break;
-    case "nearby:user":
+    case "nearby:users":
+      console.log("nearby:users", data);
       store.dispatch(setNearbyUser(data));
       break;
     default:

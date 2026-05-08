@@ -1,15 +1,9 @@
 import { X, MessageCircle, MapPin, Compass } from "lucide-react";
 import placeholder from "../../assets/placeholder.svg";
+import type { NearbyUser } from "../../types/map.types";
 
 interface ProfilePreviewProps {
-  user: {
-    id: string;
-    name: string;
-    distance: number;
-    intent: string[];
-    bio: string;
-    isOnline: boolean;
-  };
+  user: NearbyUser;
   onClose: () => void;
 }
 
@@ -76,16 +70,18 @@ export default function ProfilePreview({ user, onClose }: ProfilePreviewProps) {
         <div className="flex items-start gap-4 mb-6">
           <div className="h-20 w-20 rounded-2xl overflow-hidden border-2 border-primary/20">
             <img
-              src={placeholder}
-              alt="Profile"
+              src={user.avatarUrl || placeholder}
+              alt={`${user.firstName} ${user.lastName}`}
               className="h-full w-full object-cover"
             />
           </div>
           <div className="pt-2">
-            <h3 className="text-2xl font-bold tracking-tight">Alex Rivers</h3>
+            <h3 className="text-2xl font-bold tracking-tight">
+              {user.firstName} {user.lastName}
+            </h3>
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <MapPin size={12} className="text-primary" />
-              <span>Upper West Side • 0.4mi</span>
+              <span className="capitalize">{user.availability}</span>
             </div>
           </div>
         </div>
@@ -93,19 +89,22 @@ export default function ProfilePreview({ user, onClose }: ProfilePreviewProps) {
         <div className="space-y-4">
           <div>
             <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Intent</span>
-            <div className="mt-1 flex gap-2">
-              <span className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs text-primary font-medium">
-                Coffee Chat
-              </span>
-              <span className="px-3 py-1 rounded-full bg-accent text-xs font-medium">Remote Work</span>
+            <div className="mt-1 flex flex-wrap gap-2">
+              {user.joinReason.split(/,\s*/).map((intent) => (
+                <span
+                  key={intent}
+                  className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs text-primary font-medium"
+                >
+                  {intent}
+                </span>
+              ))}
             </div>
           </div>
 
           <div>
             <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Bio</span>
             <p className="mt-1 text-sm text-muted-foreground leading-relaxed">
-              Product designer living in NYC. Love talking about design systems, local art galleries, and finding the
-              best espresso in Manhattan.
+              {user.bio}
             </p>
           </div>
 

@@ -1,6 +1,6 @@
 const locationUpdatesHandler = (data: any, ws: WebSocket) => {
     navigator.geolocation.getCurrentPosition((position) => {
-        console.log(position);
+        console.log('users location update:', position);
         ws.send(JSON.stringify({
             event: "location:update",
             payload: {

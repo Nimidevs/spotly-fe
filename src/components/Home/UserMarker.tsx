@@ -1,18 +1,18 @@
 import { useState, useEffect } from "react";
+import type { NearbyUser } from "../../types/map.types";
 
-interface UserMarkerProps {
-  user: {
-    id: string;
-    name: string;
-    isOnline: boolean;
-    intent: string[];
-    distance: number;
-  };
-  position: { x: number; y: number };
-  onHover: () => void;
-  onHoverEnd: () => void;
-  onClick: () => void;
+export interface UserMarkerProps {
+  user: NearbyUser;
+  /** When omitted, marker is in "map mode" (centered only, no % position). */
+  position?: { x: number; y: number };
+  onHover?: () => void;
+  onHoverEnd?: () => void;
+  onClick?: () => void;
 }
+
+const displayName = (u: NearbyUser) => `${u.firstName} ${u.lastName}`.trim() || "?";
+const isAvailable = (u: NearbyUser) => u.availability === "available";
+const intents = (u: NearbyUser) => u.joinReason.split(/,\s*/).filter(Boolean);
 
 export default function UserMarker({
   user,
@@ -21,38 +21,45 @@ export default function UserMarker({
   onHoverEnd,
   onClick,
 }: UserMarkerProps) {
-  const [isHovered, setIsHovered] = useState(false)
+  const [isHovered, setIsHovered] = useState(false);
   const [isPulsing, setIsPulsing] = useState(false);
+  const name = displayName(user);
+  const isOnline = isAvailable(user);
+  const intentList = intents(user);
 
   useEffect(() => {
-    if (user.isOnline) {
+    if (isOnline) {
       const interval = setInterval(() => {
         setIsPulsing((prev) => !prev);
       }, 2000);
       return () => clearInterval(interval);
     }
-  }, [user.isOnline]);
+  }, [isOnline]);
 
   return (
     <div
       className="absolute cursor-pointer z-10 group"
-      style={{
-        left: `${position.x}%`,
-        top: `${position.y}%`,
-        transform: "translate(-50%, -50%)",
-      }}
+      style={
+        position != null
+          ? {
+              left: `${position.x}%`,
+              top: `${position.y}%`,
+              transform: "translate(-50%, -50%)",
+            }
+          : { transform: "translate(-50%, -50%)" }
+      }
       onMouseEnter={() => {
-        setIsHovered(true)
-        onHover()
+        setIsHovered(true);
+        onHover?.();
       }}
       onMouseLeave={() => {
-        setIsHovered(false)
-        onHoverEnd()
+        setIsHovered(false);
+        onHoverEnd?.();
       }}
       onClick={onClick}
     >
-      {/* Pulse Ring (only for online users) */}
-      {user.isOnline && (
+      {/* Pulse Ring (only for available users) */}
+      {isOnline && (
         <div
           className={`absolute inset-0 rounded-full border-2 border-[#4ade80] ${
             isPulsing ? "animate-ping opacity-75" : "opacity-0"
@@ -69,11 +76,11 @@ export default function UserMarker({
       {/* Avatar Marker */}
       <div className="relative">
         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#EBF934] to-[#90EE90] flex items-center justify-center border-2 border-[#0a0a0a] shadow-lg group-hover:scale-110 transition-transform">
-          <span className="text-black font-semibold text-sm">{user.name[0]}</span>
+          <span className="text-black font-semibold text-sm">{name[0] ?? "?"}</span>
         </div>
 
         {/* Online Indicator */}
-        {user.isOnline && (
+        {isOnline && (
           <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-[#4ade80] rounded-full border-2 border-[#0a0a0a]" />
         )}
       </div>
@@ -87,17 +94,17 @@ export default function UserMarker({
             <div className="flex items-center gap-3 mb-2">
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#EBF934] to-[#90EE90] flex items-center justify-center">
                 <span className="text-black font-semibold text-sm">
-                  {user.name[0]}
+                  {name[0] ?? "?"}
                 </span>
               </div>
               <div>
-                <h3 className="text-white font-semibold text-sm">{user.name}</h3>
-                <p className="text-gray-400 text-xs">{user.distance} km away</p>
+                <h3 className="text-white font-semibold text-sm">{name}</h3>
+                <p className="text-gray-400 text-xs">Nearby</p>
               </div>
             </div>
 
             <div className="flex flex-wrap gap-1.5">
-              {user.intent.map((intent, idx) => (
+              {intentList.map((intent, idx) => (
                 <span
                   key={idx}
                   className="text-[10px] px-2 py-0.5 rounded-full bg-[#2a2a2a] text-gray-300"
